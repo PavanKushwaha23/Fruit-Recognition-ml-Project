@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+         :root {
+            --primary: #4f46e5;
+            --secondary: #f9fafb;
+            --accent: #10b981;
+            --danger: #ef4444;
+            --text: #111827;
+            --light-text: #6b7280;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: var(--text);
+        }
+        
+        .card {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            transition: all 0.2s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #4338ca;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+        
+        .btn-accent {
+            background-color: var(--accent);
+            color: white;
+        }
+        
+        .btn-accent:hover {
+            background-color: #0d9488;
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .badge-primary {
+            background-color: #e0e7ff;
+            color: var(--primary);
+        }
+        
+        .badge-success {
+            background-color: #d1fae5;
+            color: var(--accent);
+        }
+        
+        .badge-warning {
+            background-color: #fef3c7;
+            color: #f59e0b;
+        }
+        
+        .badge-danger {
+            background-color: #fee2e2;
+            color: var(--danger);
+        }
+        
+        input,
+        select {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            padding: 0.5rem 0.75rem;
+            width: 100%;
+        }
+        
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background-color: #f9fafb;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            color: var(--light-text);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+        
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: middle;
+        }
+        
+        tr:hover td {
+            background-color: #f9fafb;
+        }
+        
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .action-btn:hover {
+            background-color: #e5e7eb;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 0.5rem;
+            width: 100%;
+            max-width: 28rem;
+            transform: translateY(1rem);
+            transition: transform 0.2s ease;
+        }
+        
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            background-color: var(--text);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transform: translateY(1rem);
+            opacity: 0;
+            transition: all 0.2s ease;
+            z-index: 50;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.success {
+            background-color: var(--accent);
+        }
+        
+        .toast.danger {
+            background-color: var(--danger);
+        }
+        
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+            color: var(--light-text);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            color: #d1d5db;
+            margin-bottom: 1rem;
+        }
+        
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+            .search-filter {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="dashboard-header flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Student Management Dashboard</h1>
+                <p class="text-gray-500">Manage student records efficiently</p>
+            </div>
+
+            <div class="flex items-center gap-4 w-full md:w-auto">
+                <div class="search-filter relative flex-1">
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="Search students..." class="pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 w-full">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                </div>
+                <button id="addStudentBtn" class="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg font-medium">
+                    <i class="fas fa-plus"></i>
+                    <span class="hidden md:inline">Add Student</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="card overflow-hidden mb-8">
+            <div class="table-container">
+                <table id="studentsTable">
+                    <thead>
+                        <tr>
+                            <th>Reg No</th>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Year</th>
+                            <th>Marks</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentsTableBody">
+                        <!-- Student data will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="emptyState" class="empty-state">
+                <i class="fas fa-user-graduate"></i>
+                <h3 class="text-lg font-medium mb-1">No students found</h3>
+                <p class="text-sm">Add your first student to get started</p>
+                <button id="addFirstStudentBtn" class="btn-primary mt-4 px-4 py-2 rounded-lg font-medium">
+                    Add Student
+                </button>
+            </div>
+
+            <div class="pagination hidden" id="pagination">
+                <div class="text-sm text-gray-500">
+                    Showing <span id="showingFrom">1</span> to <span id="showingTo">10</span> of <span id="totalStudents">0</span> students
+                </div>
+                <div class="flex gap-2">
+                    <button id="prevPageBtn" class="px-3 py-1 border rounded-md text-sm disabled:opacity-50" disabled>
+                        Previous
+                    </button>
+                    <button id="nextPageBtn" class="px-3 py-1 border rounded-md text-sm disabled:opacity-50" disabled>
+                        Next
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Student Modal -->
+    <div class="modal" id="studentModal">
+        <div class="modal-content">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-medium" id="modalTitle">Add New Student</h3>
+                    <button id="closeModalBtn" class="action-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <form id="studentForm" class="space-y-4">
+                    <input type="hidden" id="studentId">
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="regNo" class="block text-sm font-medium text-gray-700 mb-1">Registration Number</label>
+                            <input type="text" id="regNo" required class="w-full">
+                        </div>
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                            <input type="text" id="name" required class="w-full">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="dept" class="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                            <select id="dept" required class="w-full">
+                                <option value="">Select Department</option>
+                                <option value="Computer Science">Computer Science</option>
+                                <option value="Electrical Engineering">Electrical Engineering</option>
+                                <option value="Mechanical Engineering">Mechanical Engineering</option>
+                                <option value="Civil Engineering">Civil Engineering</option>
+                                <option value="Business Administration">Business Administration</option>
+                                <option value="Mathematics">Mathematics</option>
+                                <option value="Physics">Physics</option>
+                                <option value="Chemistry">Chemistry</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="year" class="block text-sm font-medium text-gray-700 mb-1">Year</label>
+                            <select id="year" required class="w-full">
+                                <option value="">Select Year</option>
+                                <option value="1">First Year</option>
+                                <option value="2">Second Year</option>
+                                <option value="3">Third Year</option>
+                                <option value="4">Fourth Year</option>
+                                <option value="5">Fifth Year</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="marks" class="block text-sm font-medium text-gray-700 mb-1">Marks (out of 100)</label>
+                        <input type="number" id="marks" min="0" max="100" required class="w-full">
+                    </div>
+
+                    <div class="flex justify-end gap-3 pt-4">
+                        <button type="button" id="cancelBtn" class="px-4 py-2 border rounded-lg font-medium">
+                            Cancel
+                        </button>
+                        <button type="submit" id="saveStudentBtn" class="btn-primary px-4 py-2 rounded-lg font-medium">
+                            Save Student
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-medium">Confirm Action</h3>
+                    <button id="closeConfirmModalBtn" class="action-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <p id="confirmMessage" class="mb-6">Are you sure you want to delete this student?</p>
+
+                <div class="flex justify-end gap-3">
+                    <button type="button" id="cancelConfirmBtn" class="px-4 py-2 border rounded-lg font-medium">
+                        Cancel
+                    </button>
+                    <button type="button" id="confirmActionBtn" class="btn-danger px-4 py-2 rounded-lg font-medium">
+                        Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Student added successfully!</span>
+    </div>
+
+    <script>
+        // DOM Elements
+        const studentsTableBody = document.getElementById('studentsTableBody');
+        const emptyState = document.getElementById('emptyState');
+        const pagination = document.getElementById('pagination');
+        const searchInput = document.getElementById('searchInput');
+        const addStudentBtn = document.getElementById('addStudentBtn');
+        const addFirstStudentBtn = document.getElementById('addFirstStudentBtn');
+        const studentModal = document.getElementById('studentModal');
+        const confirmModal = document.getElementById('confirmModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const closeConfirmModalBtn = document.getElementById('closeConfirmModalBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const cancelConfirmBtn = document.getElementById('cancelConfirmBtn');
+        const confirmActionBtn = document.getElementById('confirmActionBtn');
+        const studentForm = document.getElementById('studentForm');
+        const modalTitle = document.getElementById('modalTitle');
+        const studentIdInput = document.getElementById('studentId');
+        const regNoInput = document.getElementById('regNo');
+        const nameInput = document.getElementById('name');
+        const deptInput = document.getElementById('dept');
+        const yearInput = document.getElementById('year');
+        const marksInput = document.getElementById('marks');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+        const prevPageBtn = document.getElementById('prevPageBtn');
+        const nextPageBtn = document.getElementById('nextPageBtn');
+        const showingFrom = document.getElementById('showingFrom');
+        const showingTo = document.getElementById('showingTo');
+        const totalStudents = document.getElementById('totalStudents');
+
+        // State
+        let students = JSON.parse(localStorage.getItem('students')) || [];
+        let currentPage = 1;
+        const studentsPerPage = 10;
+        let currentAction = '';
+        let studentToDelete = null;
+        let filteredStudents = [];
+
+        // Initialize the app
+        function init() {
+            renderStudents();
+            setupEventListeners();
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Add student buttons
+            addStudentBtn.addEventListener('click', () => openStudentModal('add'));
+            addFirstStudentBtn.addEventListener('click', () => openStudentModal('add'));
+
+            // Modal buttons
+            closeModalBtn.addEventListener('click', closeStudentModal);
+            closeConfirmModalBtn.addEventListener('click', closeConfirmModal);
+            cancelBtn.addEventListener('click', closeStudentModal);
+            cancelConfirmBtn.addEventListener('click', closeConfirmModal);
+
+            // Form submission
+            studentForm.addEventListener('submit', handleFormSubmit);
+
+            // Confirmation modal
+            confirmActionBtn.addEventListener('click', handleConfirmAction);
+
+            // Search input
+            searchInput.addEventListener('input', handleSearch);
+
+            // Pagination
+            prevPageBtn.addEventListener('click', goToPrevPage);
+            nextPageBtn.addEventListener('click', goToNextPage);
+        }
+
+        // Render students to the table
+        function renderStudents() {
+            const studentsToRender = filteredStudents.length > 0 ? filteredStudents : students;
+
+            if (studentsToRender.length === 0) {
+                studentsTableBody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                pagination.classList.add('hidden');
+                return;
+            };
+            emptyState.classList.add('hidden');
+            pagination.classList.remove('hidden');
+
+            // Calculate pagination
+            const totalPages = Math.ceil(studentsToRender.length / studentsPerPage);
+            const startIndex = (currentPage - 1) * studentsPerPage;
+            const endIndex = Math.min(startIndex + studentsPerPage, studentsToRender.length);
+            const paginatedStudents = studentsToRender.slice(startIndex, endIndex);
+
+            // Update pagination info
+            showingFrom.textContent = startIndex + 1;
+            showingTo.textContent = endIndex;
+            totalStudents.textContent = studentsToRender.length;
+
+            // Disable/enable pagination buttons
+            prevPageBtn.disabled = currentPage === 1;
+            nextPageBtn.disabled = currentPage === totalPages;
+
+            // Clear the table body
+            studentsTableBody.innerHTML = '';
+
+            // Add students to the table
+            paginatedStudents.forEach(student => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${student.regNo}</td>
+                    <td class="font-medium">${student.name}</td>
+                    <td>${student.dept}</td>
+                    <td>Year ${student.year}</td>
+                    <td>${student.marks}</td>
+                    <td>
+                        <span class="badge ${getStatusClass(student.marks)}">
+                            ${getStatusText(student.marks)}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="flex gap-2">
+                            <button class="action-btn text-indigo-600 edit-btn" data-id="${student.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn text-red-600 delete-btn" data-id="${student.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                studentsTableBody.appendChild(row);
+            });
+
+            // Add event listeners to edit and delete buttons
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', () => openStudentModal('edit', btn.dataset.id));
+            });
+
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', () => confirmDelete(btn.dataset.id));
+            });
+        }
+
+        // Get status class based on marks
+        function getStatusClass(marks) {
+            marks = parseInt(marks);
+            if (marks >= 85) return 'badge-success';
+            if (marks >= 50) return 'badge-primary';
+            if (marks >= 35) return 'badge-warning';
+            return 'badge-danger';
+        }
+
+        // Get status text based on marks
+        function getStatusText(marks) {
+            marks = parseInt(marks);
+            if (marks >= 85) return 'Excellent';
+            if (marks >= 50) return 'Good';
+            if (marks >= 35) return 'Pass';
+            return 'Fail';
+        }
+
+        // Open student modal for add/edit
+        function openStudentModal(action, id = null) {
+            currentAction = action;
+
+            if (action === 'add') {
+                modalTitle.textContent = 'Add New Student';
+                studentForm.reset();
+                studentIdInput.value = '';
+            } else if (action === 'edit' && id) {
+                modalTitle.textContent = 'Edit Student';
+                const student = students.find(s => s.id === id);
+                if (student) {
+                    studentIdInput.value = student.id;
+                    regNoInput.value = student.regNo;
+                    nameInput.value = student.name;
+                    deptInput.value = student.dept;
+                    yearInput.value = student.year;
+                    marksInput.value = student.marks;
+                }
+            }
+
+            studentModal.classList.add('active');
+        }
+
+        // Close student modal
+        function closeStudentModal() {
+            studentModal.classList.remove('active');
+        }
+
+        // Handle form submission
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const studentData = {
+                id: studentIdInput.value || generateId(),
+                regNo: regNoInput.value,
+                name: nameInput.value,
+                dept: deptInput.value,
+                year: yearInput.value,
+                marks: marksInput.value,
+                createdAt: studentIdInput.value ?
+                    students.find(s => s.id === studentIdInput.value).createdAt : new Date().toISOString()
+            };
+
+            if (currentAction === 'add') {
+                // Check if regNo already exists
+                if (students.some(s => s.regNo === studentData.regNo)) {
+                    showToast('Registration number already exists!', 'danger');
+                    return;
+                }
+
+                students.push(studentData);
+                showToast('Student added successfully!');
+            } else if (currentAction === 'edit') {
+                const index = students.findIndex(s => s.id === studentData.id);
+                if (index !== -1) {
+                    students[index] = studentData;
+                    showToast('Student updated successfully!');
+                }
+            }
+
+            saveStudents();
+            renderStudents();
+            closeStudentModal();
+        }
+
+        // Confirm delete action
+        function confirmDelete(id) {
+            studentToDelete = id;
+            document.getElementById('confirmMessage').textContent =
+                'Are you sure you want to delete this student? This action cannot be undone.';
+            confirmModal.classList.add('active');
+        }
+
+        // Handle confirm action
+        function handleConfirmAction() {
+            if (studentToDelete) {
+                deleteStudent(studentToDelete);
+                studentToDelete = null;
+            }
+            closeConfirmModal();
+        }
+
+        // Close confirmation modal
+        function closeConfirmModal() {
+            confirmModal.classList.remove('active');
+        }
+
+        // Delete student
+        function deleteStudent(id) {
+            students = students.filter(student => student.id !== id);
+            saveStudents();
+            renderStudents();
+            showToast('Student deleted successfully!');
+        }
+
+        // Save students to localStorage
+        function saveStudents() {
+            localStorage.setItem('students', JSON.stringify(students));
+        }
+
+        // Generate unique ID
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            toastMessage.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Handle search
+        function handleSearch() {
+            const searchTerm = searchInput.value.toLowerCase();
+
+            if (searchTerm) {
+                filteredStudents = students.filter(student =>
+                    student.name.toLowerCase().includes(searchTerm) ||
+                    student.regNo.toLowerCase().includes(searchTerm) ||
+                    student.dept.toLowerCase().includes(searchTerm)
+                );
+                currentPage = 1;
+            } else {
+                filteredStudents = [];
+            }
+
+            renderStudents();
+        }
+
+        // Go to previous page
+        function goToPrevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderStudents();
+            }
+        }
+
+        // Go to next page
+        function goToNextPage() {
+            const studentsToRender = filteredStudents.length > 0 ? filteredStudents : students;
+            const totalPages = Math.ceil(studentsToRender.length / studentsPerPage);
+
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderStudents();
+            }
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+
+</html>
