@@ -21,6 +21,8 @@ There is a need for a lightweight, browser-based tool that enables easy **studen
 
 ---
 
+![Screenshot 2025-07-05 000600](https://github.com/user-attachments/assets/6f286b30-733f-4153-95dd-81ef6706ec53)
+
 ## 🎯 Objective
 
 - Build a responsive web dashboard that allows users to manage student records  
